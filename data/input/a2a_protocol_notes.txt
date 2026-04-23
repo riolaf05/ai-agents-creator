@@ -1,0 +1,15 @@
+Note sul protocollo A2A (Agent-to-Agent)
+
+A2A è un pattern (e una spec in evoluzione) per far comunicare agenti
+diversi, anche di organizzazioni diverse, in modo interoperabile. Gli
+ingredienti chiave:
+
+1. Agent Card: descrive pubblicamente un agente (nome, skill, endpoint).
+2. Messaging: richieste HTTP JSON con sender, task, context e reply_to.
+3. Artifacts: dati strutturati restituiti dall'agente remoto.
+4. Autenticazione: token/bearer/mTLS secondo accordi tra le parti.
+
+Vantaggi rispetto a chiamate API tradizionali: l'interfaccia è "natural
+language first", quindi i chiamanti descrivono l'obiettivo invece del
+payload esatto, e il provider può evolvere il proprio agente senza
+breaking change contrattuali.

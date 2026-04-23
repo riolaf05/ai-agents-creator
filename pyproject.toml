@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-agents-creator"
+version = "0.1.0"
+description = "Framework to build Claude-based AI agents with orchestrator, MCP tools, A2A, webhooks"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.39.0",
+    "boto3>=1.35.0",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.8.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "httpx>=0.27.0",
+    "rich>=13.7.0",
+    "mcp>=1.0.0",
+]
+
+[project.scripts]
+aiagents = "ai_agents_creator.triggers.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

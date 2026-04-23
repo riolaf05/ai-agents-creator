@@ -1,0 +1,15 @@
+AI Agents - Introduzione
+
+Un AI agent è un sistema software che percepisce l'ambiente attraverso input
+(testo, API, file) e agisce su di esso tramite strumenti (tool use). Gli
+agenti moderni basati su LLM combinano:
+
+- Pianificazione: scomporre un obiettivo in passi.
+- Tool use: chiamare funzioni o API esterne.
+- Memoria: mantenere contesto tra i turni.
+- Orchestrazione: coordinare più agenti specializzati.
+
+Un pattern molto efficace è il "subagent pattern", in cui un agente
+orchestrator delega task verticali a subagent specializzati (reader,
+classifier, writer, indexer, planner, ecc.). Questo riduce la complessità di
+ogni singolo agente e permette il riuso.
