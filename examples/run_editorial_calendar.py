@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "src"))
 os.environ.setdefault("AGENT_PROGRESS", "1")
 
 from ai_agents_creator.config import get_settings  # noqa: E402
-from ai_agents_creator.use_cases.editorial_calendar import (  # noqa: E402
+from ai_agents_creator.agents.editorial_calendar import (  # noqa: E402
     build_editorial_orchestrator,
 )
 

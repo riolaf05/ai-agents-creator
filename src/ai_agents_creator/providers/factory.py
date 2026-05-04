@@ -1,9 +1,10 @@
-"""Factory che crea un client Anthropic (API diretta o AWS Bedrock).
+"""Factory che crea un client Anthropic (API diretta, AWS Bedrock o Vertex AI).
 
-Entrambe le classi espongono la stessa API `messages.create(...)` grazie all'SDK
-ufficiale `anthropic` che fornisce sia ``Anthropic`` (API cloud) sia
-``AnthropicBedrock`` (AWS Bedrock). Questo modulo nasconde la scelta del
-provider dietro ``build_client()`` e ``complete()``.
+Tutte le classi espongono la stessa API `messages.create(...)` grazie all'SDK
+ufficiale `anthropic` che fornisce ``Anthropic`` (API cloud),
+``AnthropicBedrock`` (AWS Bedrock) e ``AnthropicVertex`` (Google Cloud Vertex AI).
+Questo modulo nasconde la scelta del provider dietro ``build_client()`` e
+``complete()``.
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ from __future__ import annotations
 import sys
 from typing import Any
 
-from anthropic import Anthropic, AnthropicBedrock
+from anthropic import Anthropic, AnthropicBedrock, AnthropicVertex
 
 from ..config import Settings, get_settings
 
@@ -34,6 +35,13 @@ def _validate_model_for_provider(settings: Settings) -> None:
                 "Usa es. anthropic.claude-sonnet-4-6 oppure "
                 "eu.anthropic.claude-sonnet-4-6 (inference profile EU)."
             )
+    elif settings.provider == "vertex":
+        if mid.startswith("anthropic.") or mid.startswith(("eu.", "us.", "global.", "ap.", "au.", "jp.")):
+            raise ValueError(
+                f"VERTEX_MODEL={mid!r} sembra un id Bedrock. "
+                "Per Vertex AI usa lo stesso formato dell'API Anthropic, "
+                "es. claude-sonnet-4-6."
+            )
 
 
 def build_client(settings: Settings | None = None):
@@ -41,8 +49,6 @@ def build_client(settings: Settings | None = None):
     settings = settings or get_settings()
 
     if settings.provider == "bedrock":
-        # Non passare session token se assente: una riga vuota in .env può far
-        # fallire la firma AWS con "The security token ... is invalid".
         bedrock_kwargs: dict[str, Any] = {
             "aws_region": settings.aws_region,
             "aws_access_key": settings.aws_access_key_id,
@@ -51,6 +57,17 @@ def build_client(settings: Settings | None = None):
         if settings.aws_session_token:
             bedrock_kwargs["aws_session_token"] = settings.aws_session_token
         return AnthropicBedrock(**bedrock_kwargs)
+
+    if settings.provider == "vertex":
+        if not settings.vertex_project_id:
+            raise RuntimeError(
+                "VERTEX_PROJECT_ID non impostato: configura .env oppure usa "
+                "un altro LLM_PROVIDER."
+            )
+        return AnthropicVertex(
+            project_id=settings.vertex_project_id,
+            region=settings.vertex_region,
+        )
 
     if not settings.anthropic_api_key:
         raise RuntimeError(

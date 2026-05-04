@@ -20,7 +20,7 @@ from rich.table import Table
 
 from ..a2a.server import list_orchestrators
 from ..core.registry import AgentRegistry
-from ..use_cases import bootstrap_all
+from ..agents import bootstrap_all
 
 console = Console()
 

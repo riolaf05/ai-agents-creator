@@ -28,7 +28,7 @@ from pydantic import BaseModel, Field
 from ..a2a.server import build_a2a_router, list_orchestrators, register_orchestrator
 from ..config import get_settings
 from ..core.registry import AgentRegistry
-from ..use_cases import bootstrap_all
+from ..agents import bootstrap_all
 
 logger = logging.getLogger(__name__)
 
