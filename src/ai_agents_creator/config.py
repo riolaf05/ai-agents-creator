@@ -10,7 +10,7 @@ from typing import Literal
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
-ProviderName = Literal["anthropic", "bedrock"]
+ProviderName = Literal["anthropic", "bedrock", "vertex"]
 
 
 class Settings(BaseModel):
@@ -28,6 +28,11 @@ class Settings(BaseModel):
     aws_session_token: str | None = None
     # Base model o inference profile (es. eu.anthropic.claude-sonnet-4-6)
     bedrock_model: str = "anthropic.claude-sonnet-4-6"
+
+    vertex_project_id: str | None = None
+    vertex_region: str = "europe-west1"
+    # Vertex usa gli stessi id modello dell'API Anthropic (es. claude-sonnet-4-6)
+    vertex_model: str = "claude-sonnet-4-6"
 
     default_max_tokens: int = 4096
     default_temperature: float = 0.3
@@ -47,7 +52,11 @@ class Settings(BaseModel):
     @property
     def model_id(self) -> str:
         """Restituisce l'id modello corretto per il provider attivo."""
-        return self.bedrock_model if self.provider == "bedrock" else self.anthropic_model
+        if self.provider == "bedrock":
+            return self.bedrock_model
+        if self.provider == "vertex":
+            return self.vertex_model
+        return self.anthropic_model
 
 
 def _parse_list(value: str | None) -> list[str]:
@@ -83,7 +92,7 @@ def get_settings() -> Settings:
     load_dotenv(override=False)
 
     provider = os.getenv("LLM_PROVIDER", "anthropic").lower()
-    if provider not in ("anthropic", "bedrock"):
+    if provider not in ("anthropic", "bedrock", "vertex"):
         raise ValueError(f"LLM_PROVIDER non valido: {provider}")
 
     return Settings(
@@ -95,6 +104,9 @@ def get_settings() -> Settings:
         aws_secret_access_key=_env_str("AWS_SECRET_ACCESS_KEY"),
         aws_session_token=_env_str("AWS_SESSION_TOKEN"),
         bedrock_model=os.getenv("BEDROCK_MODEL", "anthropic.claude-sonnet-4-6"),
+        vertex_project_id=_env_str("VERTEX_PROJECT_ID"),
+        vertex_region=os.getenv("VERTEX_REGION", "europe-west1"),
+        vertex_model=os.getenv("VERTEX_MODEL", "claude-sonnet-4-6"),
         default_max_tokens=int(os.getenv("DEFAULT_MAX_TOKENS", "4096")),
         default_temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.3")),
         agent_max_iterations=int(os.getenv("AGENT_MAX_ITERATIONS", "8")),

@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "src"))
 os.environ.setdefault("AGENT_PROGRESS", "1")
 
 from ai_agents_creator.config import get_settings  # noqa: E402
-from ai_agents_creator.use_cases.knowledge_base import build_kb_orchestrator  # noqa: E402
+from ai_agents_creator.agents.knowledge_base import build_kb_orchestrator  # noqa: E402
 
 
 def main() -> int:
