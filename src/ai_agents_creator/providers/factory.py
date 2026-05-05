@@ -12,7 +12,7 @@ from __future__ import annotations
 import sys
 from typing import Any
 
-from anthropic import Anthropic, AnthropicBedrock, AnthropicVertex
+from anthropic import Anthropic, AnthropicBedrock, AnthropicVertex, NotFoundError
 
 from ..config import Settings, get_settings
 
@@ -110,11 +110,32 @@ def complete(
 
     if settings.agent_progress:
         n_tools = len(tools) if tools else 0
+        wait_hint = {
+            "bedrock": " Bedrock può richiedere 10–60s per round.",
+            "vertex": " Vertex può richiedere decine di secondi al primo round.",
+        }.get(settings.provider, "")
         print(
-            f"[progress] LLM {settings.provider} model={kwargs['model']} "
-            f"tools={n_tools} (attendi, Bedrock può richiedere 10–60s per round)…",
+            f"[progress] LLM {settings.provider} model={kwargs['model']} tools={n_tools}"
+            f"{wait_hint}…",
             file=sys.stderr,
             flush=True,
         )
 
-    return client.messages.create(**kwargs)
+    try:
+        return client.messages.create(**kwargs)
+    except NotFoundError:
+        if settings.provider == "vertex":
+            print(
+                "\n[hint Vertex 404] Il modello non è raggiungibile per questo progetto. Controlla in ordine:\n"
+                "  1) Model Garden → Enable per questo VERTEX_MODEL (ogni versione è separata), es.:\n"
+                "     https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-sonnet-4-5\n"
+                "     oppure .../claude-sonnet-4-6 se usi quel modello.\n"
+                "  2) IAM: ruoli roles/consumerprocurement.entitlementManager e roles/aiplatform.user (chi abilita / chi chiama).\n"
+                "  3) Organization policy: partner models e API cloudcommerceconsumerprocurement non devono essere bloccati.\n"
+                "  4) Endpoint: prova VERTEX_REGION=global, oppure residenza EU con VERTEX_REGION=eu (multi-regione), "
+                "oppure regione documentata es. europe-west1.\n"
+                "  Doc: https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models\n",
+                file=sys.stderr,
+                flush=True,
+            )
+        raise
