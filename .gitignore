@@ -1,7 +1,14 @@
 .venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.log
 .env
 .env.*
 !.env.example
@@ -10,6 +17,8 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+# Dati locali generati o caricati dall’utente (non versionare)
 data/knowledge_base/
 data/editorial/
 .DS_Store
+Thumbs.db

@@ -30,9 +30,11 @@ class Settings(BaseModel):
     bedrock_model: str = "anthropic.claude-sonnet-4-6"
 
     vertex_project_id: str | None = None
-    vertex_region: str = "europe-west1"
-    # Vertex usa gli stessi id modello dell'API Anthropic (es. claude-sonnet-4-6)
-    vertex_model: str = "claude-sonnet-4-6"
+    # Location Vertex: regione GCP (es. europe-west1), oppure "global", oppure multi-regione "eu" / "us"
+    # (vedi use-partner-models). Non tutte le regioni GCP espongono ogni modello partner.
+    vertex_region: str = "global"
+    # Default 4-5: su Vertex ogni versione va abilitata in Model Garden; 4-6 spesso 404 finché non abiliti quella scheda.
+    vertex_model: str = "claude-sonnet-4-5"
 
     default_max_tokens: int = 4096
     default_temperature: float = 0.3
@@ -105,8 +107,8 @@ def get_settings() -> Settings:
         aws_session_token=_env_str("AWS_SESSION_TOKEN"),
         bedrock_model=os.getenv("BEDROCK_MODEL", "anthropic.claude-sonnet-4-6"),
         vertex_project_id=_env_str("VERTEX_PROJECT_ID"),
-        vertex_region=os.getenv("VERTEX_REGION", "europe-west1"),
-        vertex_model=os.getenv("VERTEX_MODEL", "claude-sonnet-4-6"),
+        vertex_region=os.getenv("VERTEX_REGION", "global"),
+        vertex_model=os.getenv("VERTEX_MODEL", "claude-sonnet-4-5"),
         default_max_tokens=int(os.getenv("DEFAULT_MAX_TOKENS", "4096")),
         default_temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.3")),
         agent_max_iterations=int(os.getenv("AGENT_MAX_ITERATIONS", "8")),
